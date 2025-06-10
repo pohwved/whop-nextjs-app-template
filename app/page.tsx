@@ -1,46 +1,16 @@
-// Add this to the very top of the file to tell Next.js this component
-// will interact with the user (e.g., button clicks).
 'use client';
 
-// 1. Import the Whop SDK
-import { WhopSDK } from '@whop-sdk/whop';
+// 1. Import React and our new server action
+import { createProductAction } from './actions';
 
 export default function Home() {
 
-  // This is the function that will run on the SERVER when called.
-  async function createProductAction() {
-    'use server'; // This magic line makes it a Server Action!
-
-    console.log('Server Action: createProductAction triggered!');
-
-    try {
-      // Initialize the SDK. It automatically finds your WHOP_API_KEY
-      // from the .env.local file on the server.
-      const whop = new WhopSDK();
-
-      // Call the SDK to create the product
-      const newProduct = await whop.products.create({
-        title: 'My First App Product!',
-      });
-      
-      const productId = newProduct.id;
-      
-      console.log('✅ Success! Product created with the SDK.');
-      console.log('Your new product_id is:', productId);
-
-      // Return the ID to the client so we can show it.
-      return { success: true, productId: productId };
-
-    } catch (error) {
-      console.error('❌ Error creating product with SDK:', error);
-      return { success: false, error: 'Failed to create product.' };
-    }
-  }
-
-  // This function will run on the CLIENT (in your browser) when the button is clicked.
+  // This function still runs in the browser when the button is clicked
   const handleCreateClick = async () => {
     alert('Sending request to server to create product...');
-    const result = await createProductAction(); // This calls our Server Action
+
+    // 2. Call the imported server action
+    const result = await createProductAction(); 
 
     if (result.success) {
       alert(`Success! Product created with ID: ${result.productId}`);
