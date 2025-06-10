@@ -1,33 +1,27 @@
-'use client';
+// This is a Server Component. 'searchParams' is automatically passed by Next.js.
+export default function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
 
-import { createProductAction } from './actions';
-
-export default function Home() {
-
-  const handleCreateClick = async () => {
-    alert('Sending request to server to create product...');
-
-    // This calls our server action from actions.ts
-    const result = await createProductAction(); 
-
-    if (result.success) {
-      alert(`Success! Product created with ID: ${result.productId}`);
-    } else {
-      alert(`Error: ${result.error}`);
-    }
-  };
+  // We'll format the parameters to display them nicely.
+  const paramsString = JSON.stringify(searchParams, null, 2);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-8">Whop App Test Page</h1>
-        <p className="mb-4">Click the button below to create a new product via the Whop API.</p>
-        <button
-          onClick={handleCreateClick}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Create Whop Product
-        </button>
+      <div className="text-left bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-2xl">
+        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+          Whop App Installation Context
+        </h1>
+        <p className="mb-4 text-gray-600 dark:text-gray-300">
+          When your app is launched from the Whop dashboard, Whop provides the following information to it, likely as URL search parameters:
+        </p>
+        <pre className="bg-gray-800 dark:bg-black text-white p-4 rounded-md overflow-x-auto">
+          <code>
+            {paramsString}
+          </code>
+        </pre>
       </div>
     </main>
   );
