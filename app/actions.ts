@@ -1,25 +1,25 @@
 'use server';
 
-// This is the Product ID that Whop created for your app. It is a constant.
-const MY_APPS_PRODUCT_ID = 'prod_LrkPsLXC5x9Wn';
-
 // This is the correct endpoint for the GraphQL API
 const WHOP_GRAPHQL_ENDPOINT = 'https://data.whop.com/graphql';
 
 export async function getMyProductDetailsAction() {
-  console.log(`GraphQL Action: Fetching details for product: ${MY_APPS_PRODUCT_ID}`);
+  console.log(`GraphQL Action: Fetching the app's associated product...`);
 
   const apiKey = process.env.WHOP_API_KEY; // Your wbk_... key
   if (!apiKey) {
     return { success: false, error: 'API Key is not configured on the server.' };
   }
 
-  // This is a GraphQL query. It specifies exactly what data we want.
+  // This is the new, simpler query. It asks for the app associated
+  // with the API key, and then gets the product linked to that app.
   const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        id
-        title
+    query GetAppProduct {
+      app {
+        product {
+          id
+          title
+        }
       }
     }
   `;
@@ -31,11 +31,9 @@ export async function getMyProductDetailsAction() {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
+      // No variables are needed because the API knows who you are from the key
       body: JSON.stringify({
-        query: query,
-        variables: {
-          id: MY_APPS_PRODUCT_ID,
-        },
+        query: query
       }),
     });
 
@@ -48,10 +46,11 @@ export async function getMyProductDetailsAction() {
       return { success: false, error: errorMessage };
     }
 
-    const productTitle = responseData.data?.product?.title;
+    // The path to the title is now responseData.data.app.product.title
+    const productTitle = responseData.data?.app?.product?.title;
 
     if (!productTitle) {
-      return { success: false, error: 'Product not found via GraphQL.' };
+      return { success: false, error: 'Product title not found in GraphQL response.' };
     }
 
     console.log('✅ Success! Fetched product title via GraphQL:', productTitle);
