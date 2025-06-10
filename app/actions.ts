@@ -1,24 +1,27 @@
 'use server';
 
-// This is the correct endpoint for the GraphQL API
+// PASTE THE APP ID YOU JUST COPIED FROM YOUR DASHBOARD URL HERE
+const MY_APP_ID = 'app_Tmri0QsWr9dZzf';
+
 const WHOP_GRAPHQL_ENDPOINT = 'https://data.whop.com/graphql';
 
 export async function getMyProductDetailsAction() {
-  console.log(`GraphQL Action: Fetching the app's associated product...`);
+  console.log(`GraphQL Action: Fetching product details for App ID: ${MY_APP_ID}`);
 
   const apiKey = process.env.WHOP_API_KEY; // Your wbk_... key
   if (!apiKey) {
     return { success: false, error: 'API Key is not configured on the server.' };
   }
 
-  // This is the new, simpler query. It asks for the app associated
-  // with the API key, and then gets the product linked to that app.
+  // This is the final, correct query based on the error messages.
   const query = `
-    query GetAppProduct {
-      app {
-        product {
-          id
-          title
+    query GetAppProduct($id: ID!) {
+      app(id: $id) {
+        plans {
+          product {
+            id
+            title
+          }
         }
       }
     }
@@ -31,26 +34,27 @@ export async function getMyProductDetailsAction() {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      // No variables are needed because the API knows who you are from the key
       body: JSON.stringify({
-        query: query
+        query: query,
+        variables: {
+          id: MY_APP_ID,
+        },
       }),
     });
 
     const responseData = await response.json();
 
-    // Check for errors in the GraphQL response itself
     if (responseData.errors) {
       console.error('GraphQL Error:', responseData.errors);
       const errorMessage = responseData.errors[0]?.message || 'An unknown GraphQL error occurred.';
       return { success: false, error: errorMessage };
     }
 
-    // The path to the title is now responseData.data.app.product.title
-    const productTitle = responseData.data?.app?.product?.title;
+    // The path to the data is now nested deeper
+    const productTitle = responseData.data?.app?.plans?.[0]?.product?.title;
 
     if (!productTitle) {
-      return { success: false, error: 'Product title not found in GraphQL response.' };
+      return { success: false, error: 'Product title not found in the GraphQL response. Check the query path.' };
     }
 
     console.log('✅ Success! Fetched product title via GraphQL:', productTitle);
