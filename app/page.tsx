@@ -1,111 +1,66 @@
-export default function Page() {
-	return (
-		<div className="min-h-screen bg-gray-a12 py-12 px-4 sm:px-6 lg:px-8">
-			<div className="max-w-3xl mx-auto">
-				<div className="text-center mb-12">
-					<h1 className="text-8 font-bold text-gray-9 mb-4">
-						Welcome to Your Whop App
-					</h1>
-					<p className="text-4 text-gray-6">
-						Follow these steps to get started with your Whop application
-					</p>
-				</div>
+// Add this to the very top of the file to tell Next.js this component
+// will interact with the user (e.g., button clicks).
+'use client';
 
-				<div className="space-y-8">
-					<div className="bg-white p-6 rounded-lg shadow-md">
-						<h2 className="text-5 font-semibold text-gray-9 mb-4 flex items-center">
-							<span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-accent-9 text-white mr-3">
-								1
-							</span>
-							Create your Whop app
-						</h2>
-						<p className="text-gray-6 ml-11">
-							Go to your{" "}
-							<a
-								href="https://whop.com/dashboard"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-accent-9 hover:text-accent-10 underline"
-							>
-								Whop Dashboard
-							</a>{" "}
-							and create a new app in the Developer section.
-						</p>
-					</div>
+// 1. Import the Whop SDK
+import { WhopSDK } from '@whop-sdk/whop';
 
-					<div className="bg-white p-6 rounded-lg shadow-md">
-						<h2 className="text-5 font-semibold text-gray-9 mb-4 flex items-center">
-							<span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-accent-9 text-white mr-3">
-								2
-							</span>
-							Set up environment variables
-						</h2>
-						<p className="text-gray-6 ml-11 mb-4">
-							Copy the .env file from your dashboard and create a new .env file
-							in your project root. This will contain all the necessary
-							environment variables for your app.
-						</p>
-						{process.env.NODE_ENV === "development" && (
-							<div className="text-gray-6 ml-11">
-								<pre>
-									<code>
-										WHOP_API_KEY={process.env.WHOP_API_KEY?.slice(0, 5)}...
-										<br />
-										NEXT_PUBLIC_WHOP_AGENT_USER_ID=
-										{process.env.NEXT_PUBLIC_WHOP_AGENT_USER_ID}
-										<br />
-										NEXT_PUBLIC_WHOP_APP_ID=
-										{process.env.NEXT_PUBLIC_WHOP_APP_ID}
-										<br />
-										NEXT_PUBLIC_WHOP_COMPANY_ID=
-										{process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}
-									</code>
-								</pre>
-							</div>
-						)}
-					</div>
+export default function Home() {
 
-					<div className="bg-white p-6 rounded-lg shadow-md">
-						<h2 className="text-5 font-semibold text-gray-9 mb-4 flex items-center">
-							<span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-accent-9 text-white mr-3">
-								3
-							</span>
-							Install your app into your whop
-						</h2>
-						<p className="text-gray-6 ml-11">
-							{process.env.NEXT_PUBLIC_WHOP_APP_ID ? (
-								<a
-									href={`https://whop.com/apps/${process.env.NEXT_PUBLIC_WHOP_APP_ID}/install`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-accent-9 hover:text-accent-10 underline"
-								>
-									Click here to install your app
-								</a>
-							) : (
-								<span className="text-amber-600">
-									Please set your environment variables to see the installation
-									link
-								</span>
-							)}
-						</p>
-					</div>
-				</div>
+  // This is the function that will run on the SERVER when called.
+  async function createProductAction() {
+    'use server'; // This magic line makes it a Server Action!
 
-				<div className="mt-12 text-center text-2 text-gray-5">
-					<p>
-						Need help? Visit the{" "}
-						<a
-							href="https://dev.whop.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-accent-9 hover:text-accent-10 underline"
-						>
-							Whop Documentation
-						</a>
-					</p>
-				</div>
-			</div>
-		</div>
-	);
+    console.log('Server Action: createProductAction triggered!');
+
+    try {
+      // Initialize the SDK. It automatically finds your WHOP_API_KEY
+      // from the .env.local file on the server.
+      const whop = new WhopSDK();
+
+      // Call the SDK to create the product
+      const newProduct = await whop.products.create({
+        title: 'My First App Product!',
+      });
+      
+      const productId = newProduct.id;
+      
+      console.log('✅ Success! Product created with the SDK.');
+      console.log('Your new product_id is:', productId);
+
+      // Return the ID to the client so we can show it.
+      return { success: true, productId: productId };
+
+    } catch (error) {
+      console.error('❌ Error creating product with SDK:', error);
+      return { success: false, error: 'Failed to create product.' };
+    }
+  }
+
+  // This function will run on the CLIENT (in your browser) when the button is clicked.
+  const handleCreateClick = async () => {
+    alert('Sending request to server to create product...');
+    const result = await createProductAction(); // This calls our Server Action
+
+    if (result.success) {
+      alert(`Success! Product created with ID: ${result.productId}`);
+    } else {
+      alert(`Error: ${result.error}`);
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-8">Whop App Test Page</h1>
+        <p className="mb-4">Click the button below to create a new product via the Whop API.</p>
+        <button
+          onClick={handleCreateClick}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Create Whop Product
+        </button>
+      </div>
+    </main>
+  );
 }
