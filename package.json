@@ -3,11 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev -H humble-couscous-q7xp74j6rrv7f6xpx",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint"
-	},
+  "dev": "next dev -p 3000 -H 0.0.0.0",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+},
 	"dependencies": {
 		"@vercel/functions": "^2.0.3",
 		"@whop/api": "^0.0.24",

@@ -1,41 +1,32 @@
-import { headers } from 'next/headers';
-// The correct way: Import the exact function we need directly from the package.
-import { getAppInstallation } from '@whop/api';
+'use client';
 
-export default async function Home() {
-  let installationData = null;
-  let errorMessage = null;
+import { getMyProductDetailsAction } from './actions';
 
-  try {
-    // Call the imported function directly.
-    // It reads the necessary info from the request headers.
-    installationData = await getAppInstallation({ headers: headers() });
-  } catch (error) {
-    console.error("Error fetching installation data:", error);
-    if (error instanceof Error) {
-      errorMessage = error.message;
+export default function Home() {
+  const handleFetchDetailsClick = async () => {
+    alert('Requesting product details from the server...');
+    const result = await getMyProductDetailsAction();
+
+    if (result.success) {
+      alert(`Success! Your product's name is: "${result.title}"`);
     } else {
-      errorMessage = "An unknown error occurred.";
+      alert(`An error occurred: ${result.error}`);
     }
-  }
-
-  // Format the data to display it on the page
-  const dataString = JSON.stringify(installationData, null, 2);
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="text-left bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-2xl">
-        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-          Whop App Installation Context
-        </h1>
-        <p className="mb-4 text-gray-600 dark:text-gray-300">
-          The following data was retrieved for this app installation:
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-8">Whop App Control Panel</h1>
+        <p className="mb-4">
+          Your app's Product ID is hardcoded. Click the button to use the API to fetch its name.
         </p>
-        <pre className="bg-gray-800 dark:bg-black text-white p-4 rounded-md overflow-x-auto">
-          <code>
-            {errorMessage ? `Error: ${errorMessage}` : dataString}
-          </code>
-        </pre>
+        <button
+          onClick={handleFetchDetailsClick}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Fetch Product Name
+        </button>
       </div>
     </main>
   );
