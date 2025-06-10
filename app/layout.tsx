@@ -33,7 +33,7 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
 				<Theme accentColor="blue">
-					<WhopIframeSdkProvider>{children}</WhopIframeSdkProvider>
+					{children}
 				</Theme>
 			</body>
 		</html>
