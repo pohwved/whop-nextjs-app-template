@@ -1,10 +1,11 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-	/* config options here */
-	images: {
-		remotePatterns: [{ hostname: "**" }],
-	},
-};
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["localhost:3000", "*.app.github.dev"],
+    },
+  },
+}
 
-export default nextConfig;
+export default nextConfig
