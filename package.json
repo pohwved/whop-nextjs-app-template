@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
+		"dev": "next dev -H humble-couscous-q7xp74j6rrv7f6xpx",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"
